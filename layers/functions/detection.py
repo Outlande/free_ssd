@@ -43,7 +43,8 @@ class Detect(Function):
             # For each class, perform nms
             conf_scores = conf_preds[i].clone()
 
-            for cl in range(0, self.num_classes):
+            # delete 0 for background
+            for cl in range(1, self.num_classes):
                 c_mask = conf_scores[cl].gt(self.conf_thresh)
                 scores = conf_scores[cl][c_mask]
                 if scores.size(0) == 0:

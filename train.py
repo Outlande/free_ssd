@@ -123,15 +123,14 @@ def train():
         ssd_net.extras.apply(weights_init)
         ssd_net.loc.apply(weights_init)
         ssd_net.conf.apply(weights_init)
-        # ssd_net.conf.apply(conf_init)
 
     optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=args.momentum,
                           weight_decay=args.weight_decay)
-    """
     criterion = MultiBoxLoss(cfg['num_classes'], 0.5, True, 0, True, 3, 0.5,
                              False, args.cuda)
-                             """
+    """
     criterion = FreeLoss(use_gpu=args.cuda, num_classes=cfg['num_classes'], overlap_thresh=0.5)
+    """
 
     net.train()
     # loss counters
