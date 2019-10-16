@@ -66,14 +66,14 @@ if torch.cuda.is_available():
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
 
-annopath = os.path.join(args.voc_root, 'VOC2012', 'Annotations', '%s.xml')
-imgpath = os.path.join(args.voc_root, 'VOC2012', 'JPEGImages', '%s.jpg')
-imgsetpath = os.path.join(args.voc_root, 'VOC2012', 'ImageSets',
+annopath = os.path.join(args.voc_root, 'VOC2007', 'Annotations', '%s.xml')
+imgpath = os.path.join(args.voc_root, 'VOC2007', 'JPEGImages', '%s.jpg')
+imgsetpath = os.path.join(args.voc_root, 'VOC2007', 'ImageSets',
                           'Main', '{:s}.txt')
-YEAR = '2012'
+YEAR = '2007'
 devkit_path = args.voc_root + 'VOC' + YEAR
 dataset_mean = (104, 117, 123)
-set_type = 'train'
+set_type = 'test'
 
 
 class Timer(object):
@@ -134,7 +134,7 @@ def get_output_dir(name, phase):
 
 
 def get_voc_results_file_template(image_set, cls):
-    # VOCdevkit/VOC2012/results/det_test_aeroplane.txt
+    # VOCdevkit/VOC2007/results/det_test_aeroplane.txt
     filename = 'det_' + image_set + '_%s.txt' % (cls)
     filedir = os.path.join(devkit_path, 'results')
     if not os.path.exists(filedir):
@@ -374,7 +374,6 @@ def test_net(save_folder, net, cuda, dataset, transform, top_k,
     _t = {'im_detect': Timer(), 'misc': Timer()}
     output_dir = get_output_dir('ssd300_120000', set_type)
     det_file = os.path.join(output_dir, 'detections.pkl')
-
     for i in range(num_images):
         im, gt, h, w = dataset.pull_item(i)
 
@@ -410,7 +409,6 @@ def test_net(save_folder, net, cuda, dataset, transform, top_k,
 
     with open(det_file, 'wb') as f:
         pickle.dump(all_boxes, f, pickle.HIGHEST_PROTOCOL)
-
     print('Evaluating detections')
     evaluate_detections(all_boxes, output_dir, dataset)
 
@@ -422,13 +420,13 @@ def evaluate_detections(box_list, output_dir, dataset):
 
 if __name__ == '__main__':
     # load net
-    num_classes = len(labelmap)                    # +1 for background
+    num_classes = len(labelmap)                          # +1 for background
     net = build_ssd('test', 300, num_classes)            # initialize SSD
     net.load_state_dict(torch.load(args.trained_model))
     net.eval()
     print('Finished loading model!')
     # load data
-    dataset = VOCDetection(args.voc_root, [('2012', set_type)],
+    dataset = VOCDetection(args.voc_root, [('2007', set_type)],
                            BaseTransform(300, dataset_mean),
                            VOCAnnotationTransform())
     if args.cuda:
