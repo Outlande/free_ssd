@@ -66,14 +66,14 @@ if torch.cuda.is_available():
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
 
-annopath = os.path.join(args.voc_root, 'VOC2012', 'Annotations', '%s.xml')
-imgpath = os.path.join(args.voc_root, 'VOC2012', 'JPEGImages', '%s.jpg')
-imgsetpath = os.path.join(args.voc_root, 'VOC2012', 'ImageSets',
+annopath = os.path.join(args.voc_root, 'VOC2007', 'Annotations', '%s.xml')
+imgpath = os.path.join(args.voc_root, 'VOC2007', 'JPEGImages', '%s.jpg')
+imgsetpath = os.path.join(args.voc_root, 'VOC2007', 'ImageSets',
                           'Main', '{:s}.txt')
-YEAR = '2012'
+YEAR = '2007'
 devkit_path = args.voc_root + 'VOC' + YEAR
 dataset_mean = (104, 117, 123)
-set_type = 'eval'
+set_type = 'test'
 
 
 class Timer(object):
@@ -134,7 +134,7 @@ def get_output_dir(name, phase):
 
 
 def get_voc_results_file_template(image_set, cls):
-    # VOCdevkit/VOC2012/results/det_test_aeroplane.txt
+    # VOCdevkit/VOC2007/results/det_test_aeroplane.txt
     filename = 'det_' + image_set + '_%s.txt' % (cls)
     filedir = os.path.join(devkit_path, 'results')
     if not os.path.exists(filedir):
@@ -428,7 +428,7 @@ if __name__ == '__main__':
     net.eval()
     print('Finished loading model!')
     # load data
-    dataset = VOCDetection(args.voc_root, [('2012', set_type)],
+    dataset = VOCDetection(args.voc_root, [('2007', set_type)],
                            BaseTransform(300, dataset_mean),
                            VOCAnnotationTransform())
     if args.cuda:
