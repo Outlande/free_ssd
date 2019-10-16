@@ -73,7 +73,7 @@ imgsetpath = os.path.join(args.voc_root, 'VOC2012', 'ImageSets',
 YEAR = '2012'
 devkit_path = args.voc_root + 'VOC' + YEAR
 dataset_mean = (104, 117, 123)
-set_type = 'eval'
+set_type = 'train'
 
 
 class Timer(object):
