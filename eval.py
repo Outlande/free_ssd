@@ -382,9 +382,9 @@ def test_net(save_folder, net, cuda, dataset, transform, top_k,
         if args.cuda:
             x = x.cuda()
         _t['im_detect'].tic()
-        detections = torch.zeros((1,21,50,5))
-        detections[0, 1:] = net(x).data
-        # detections= net(x).data
+        # detections = torch.zeros((1,21,50,5))
+        # detections[0, 1:] = net(x).data
+        detections= net(x).data
         detect_time = _t['im_detect'].toc(average=False)
         # print("detections",detections[0, 2])
 
