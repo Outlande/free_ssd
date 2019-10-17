@@ -193,13 +193,13 @@ def train():
         loss.backward()
         optimizer.step()
         t1 = time.time()
-        loc_loss += loss_l.item()
-        conf_loss += loss_c.item()
+        loc_loss += loss_p.item()
+        conf_loss += loss_n.item()
 
         if iteration % 10 == 0:
-            print('timer: %.4f sec.' % (t1 - t0), end=' ')
+            print('|| timer: %.4f sec ||' % (t1 - t0), end=' ')
             print('iter ' + repr(iteration) + ' || Loss: %.4f ||' % (loss.item()) + 
-                ' || Loss_p: %.4f ||' % (loss_p.item()) + ' || Loss_n: %.4f ||' % (loss_n.item()))
+                ' Loss_p: %.4f ||' % (loss_p.item()) + ' Loss_n: %.4f ||' % (loss_n.item()))
 
         if args.visdom:
             update_vis_plot(iteration, loss_l.item(), loss_c.item(),
