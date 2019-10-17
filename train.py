@@ -188,8 +188,8 @@ def train():
         out = net(images)
         # backprop
         optimizer.zero_grad()
-        loss_l, loss_c = criterion(out, targets)
-        loss = loss_l + loss_c
+        loss_p, loss_n = criterion(out, targets)
+        loss = loss_p + loss_n
         loss.backward()
         optimizer.step()
         t1 = time.time()
@@ -197,8 +197,9 @@ def train():
         conf_loss += loss_c.item()
 
         if iteration % 10 == 0:
-            print('timer: %.4f sec.' % (t1 - t0))
-            print('iter ' + repr(iteration) + ' || Loss: %.4f ||' % (loss.item()), end=' ')
+            print('timer: %.4f sec.' % (t1 - t0), end=' ')
+            print('iter ' + repr(iteration) + ' || Loss: %.4f ||' % (loss.item()) + 
+                ' || Loss_p: %.4f ||' % (loss_p.item()) + ' || Loss_n: %.4f ||' % (loss_n.item()))
 
         if args.visdom:
             update_vis_plot(iteration, loss_l.item(), loss_c.item(),
