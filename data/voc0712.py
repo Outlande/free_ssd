@@ -1,8 +1,6 @@
 """VOC Dataset Classes
-
 Original author: Francisco Massa
 https://github.com/fmassa/vision/blob/voc_dataset/torchvision/datasets/voc.py
-
 Updated by: Ellis Brown, Max deGroot
 """
 from .config import HOME
@@ -25,13 +23,12 @@ VOC_CLASSES = (  # always index 0
     'sheep', 'sofa', 'train', 'tvmonitor')
 
 # note: if you used our download scripts, this should be right
-VOC_ROOT = osp.join(HOME, "Desktop/zbc_labor/ssd.pytorch/VOC_data/VOC2007/VOCtest")
+VOC_ROOT = osp.join(HOME, "Desktop/zbc_labor/new/free_ssd/VOC_data/VOCdevkit/")
 
 
 class VOCAnnotationTransform(object):
     """Transforms a VOC annotation into a Tensor of bbox coords and label index
     Initilized with a dictionary lookup of classnames to indexes
-
     Arguments:
         class_to_ind (dict, optional): dictionary lookup of classnames -> indexes
             (default: alphabetic indexing of VOC's 20 classes)
@@ -79,9 +76,7 @@ class VOCAnnotationTransform(object):
 
 class VOCDetection(data.Dataset):
     """VOC Detection Dataset Object
-
     input is image, target is annotation
-
     Arguments:
         root (string): filepath to VOCdevkit folder.
         image_set (string): imageset to use (eg. 'train', 'val', 'test')
@@ -95,7 +90,7 @@ class VOCDetection(data.Dataset):
     """
 
     def __init__(self, root,
-                 image_sets=[ ('2012', 'trainval')],
+                 image_sets=[('2007', 'trainval'), ('2012', 'trainval')],
                  transform=None, target_transform=VOCAnnotationTransform(),
                  dataset_name='VOC0712'):
         self.root = root
@@ -141,10 +136,8 @@ class VOCDetection(data.Dataset):
 
     def pull_image(self, index):
         '''Returns the original image object at index in PIL form
-
         Note: not using self.__getitem__(), as any transformations passed in
         could mess up this functionality.
-
         Argument:
             index (int): index of img to show
         Return:
@@ -155,10 +148,8 @@ class VOCDetection(data.Dataset):
 
     def pull_anno(self, index):
         '''Returns the original annotation of image at index
-
         Note: not using self.__getitem__(), as any transformations passed in
         could mess up this functionality.
-
         Argument:
             index (int): index of img to get annotation of
         Return:
@@ -172,10 +163,8 @@ class VOCDetection(data.Dataset):
 
     def pull_tensor(self, index):
         '''Returns the original image at an index in tensor form
-
         Note: not using self.__getitem__(), as any transformations passed in
         could mess up this functionality.
-
         Argument:
             index (int): index of img to show
         Return:
