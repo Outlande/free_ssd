@@ -23,7 +23,7 @@ VOC_CLASSES = (  # always index 0
     'sheep', 'sofa', 'train', 'tvmonitor')
 
 # note: if you used our download scripts, this should be right
-VOC_ROOT = osp.join(HOME, "Desktop/zbc_labor/new/free_ssd/VOC_data/VOCdevkit/")
+VOC_ROOT = osp.join(HOME, "PyTorch-YOLOv3-origin/VOC/VOCdevkit")
 
 
 class VOCAnnotationTransform(object):

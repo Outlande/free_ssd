@@ -65,7 +65,7 @@ class FreeLoss(nn.Module):
         self.positive_bag_loss_func = positive_bag_loss
         self.negative_bag_loss_func = focal_loss
 
-        self.softmax = nn.Softmax(dim=-1)
+        # self.softmax = nn.Softmax(dim=-1)
 
 
     def forward(self, predictions, targets):
@@ -73,6 +73,7 @@ class FreeLoss(nn.Module):
         # batch * anchor size * numclass
         # anchor size * 4
         box_regression, cls_prob, anchors_ = predictions
+        # print(anchors_.size())
         cls_prob = self.softmax(cls_prob)
 
         box_prob = []
@@ -83,6 +84,7 @@ class FreeLoss(nn.Module):
 
         for idx in range(num):
             box_regression_ = box_regression[idx]
+            # print(anchors_.size())
             cls_prob_ = cls_prob[idx]
             # obj * 4 
             # obj * 1 

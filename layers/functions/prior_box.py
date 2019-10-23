@@ -28,6 +28,7 @@ class PriorBox(object):
     def forward(self):
         mean = []
         for k, f in enumerate(self.feature_maps):
+            # print(self.aspect_ratios)
             for i, j in product(range(f), repeat=2):
                 f_k = self.image_size / self.steps[k]
                 # unit center x,y
