@@ -74,7 +74,7 @@ class FreeLoss(nn.Module):
         # anchor size * 4
         box_regression, cls_prob, anchors_ = predictions
         # print(anchors_.size())
-        cls_prob = self.softmax(cls_prob)
+        cls_prob = torch.sigmoid(cls_prob)
 
         box_prob = []
         positive_numels = 0
