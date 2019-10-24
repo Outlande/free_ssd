@@ -8,7 +8,7 @@ import torchvision.transforms as transforms
 import cv2
 import numpy as np
 
-COCO_ROOT = osp.join(HOME, 'Desktop/zbc_labor/ssd.pytorch/data/')
+COCO_ROOT = osp.join(HOME, 'Desktop/zbc_labor/free_ssd/data/')
 IMAGES = 'images'
 ANNOTATIONS = 'annotations'
 COCO_API = 'PythonAPI'
