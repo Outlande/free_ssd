@@ -73,8 +73,8 @@ class FreeLoss(nn.Module):
         # batch * anchor size * numclass
         # anchor size * 4
         box_regression, cls_prob, anchors_ = predictions
-        cls_prob = self.softmax(cls_prob)
-
+        # cls_prob = self.softmax(cls_prob)
+        cls_prob = torch.sigmoid(cls_prob)
         box_prob = []
         positive_numels = 0
         positive_losses = []
@@ -98,6 +98,7 @@ class FreeLoss(nn.Module):
                 object_box_prob = (
                     (object_box_iou - t1) / (t2 - t1)
                 ).clamp(min=0, max=1)
+                print(object_box_prob.device)
                 indices = torch.stack([torch.arange(len(labels_)).type_as(labels_), labels_], dim=0)
 
                 # object_cls_box_prob: P{a_{j} -> b_{i}}, shape: [i, c, j]
