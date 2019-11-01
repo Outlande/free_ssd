@@ -130,8 +130,8 @@ def train():
     """
     criterion = MultiBoxLoss(cfg['num_classes'], 0.5, True, 0, True, 3, 0.5,
                              False, args.cuda)
-                             """
-    criterion = FreeLoss(use_gpu=args.cuda, num_classes=cfg['num_classes'], overlap_thresh=0.5)
+    """
+    criterion = FreeLoss(use_gpu=args.cuda, num_classes=cfg['num_classes'])
 
     net.train()
     # loss counters
@@ -155,7 +155,7 @@ def train():
 
     data_loader = data.DataLoader(dataset, args.batch_size,
                                   num_workers=args.num_workers,
-                                  shuffle=False, collate_fn=detection_collate,
+                                  shuffle=True, collate_fn=detection_collate,
                                   pin_memory=True)
     # create batch iterator
     batch_iterator = iter(cycle(data_loader))

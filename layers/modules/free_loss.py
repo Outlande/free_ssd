@@ -50,7 +50,7 @@ def positive_bag_loss(logits, *args, **kwargs):
 
 class FreeLoss(nn.Module):
 
-    def __init__(self, num_classes, overlap_thresh, use_gpu=True):
+    def __init__(self, num_classes, use_gpu=True):
         super(FreeLoss, self).__init__()
         self.use_gpu = use_gpu
         self.num_classes = num_classes # 20
@@ -72,7 +72,6 @@ class FreeLoss(nn.Module):
         # batch * anchor size * numclass
         # anchor size * 4
         box_regression, cls_prob, anchors_ = predictions
-        # print(anchors_.size())
         cls_prob = torch.sigmoid(cls_prob)
 
         box_prob = []
@@ -118,8 +117,6 @@ class FreeLoss(nn.Module):
                         indices.append(labels_[i])
                         object_cls_box_prob[labels_[i]] = object_box_prob[i]
 
-                # print("object_cls_box_prob", object_cls_box_prob.max())
-                # input()
                 indices = torch.nonzero(object_cls_box_prob)
                 if indices.size() != torch.Size([0]):
                     indices = indices.t_()
@@ -141,7 +138,7 @@ class FreeLoss(nn.Module):
                         indices_t, nonzero_box_prob,
                         size=(anchors_.size(0), self.num_classes)
                     ).to_dense()
-                    del indices_t
+                    del indices_t   
                 # end
 
                 box_prob.append(image_box_prob)
@@ -182,8 +179,6 @@ class FreeLoss(nn.Module):
         # loss_n is loss_retina_negativeloss_retina_negative
         loss_p = positive_loss * self.focal_loss_alpha
         loss_n = negative_loss * (1 - self.focal_loss_alpha)
-        # print("loss_p",loss_p)
-        # print("loss_n",loss_n)
 
         return loss_p, loss_n
         

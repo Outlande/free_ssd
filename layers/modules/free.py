@@ -50,7 +50,7 @@ def positive_bag_loss(logits, *args, **kwargs):
 
 class FreeLoss(nn.Module):
 
-    def __init__(self, num_classes, overlap_thresh, use_gpu=True):
+    def __init__(self, num_classes, use_gpu=True):
         super(FreeLoss, self).__init__()
         self.use_gpu = use_gpu
         self.num_classes = num_classes # 20
