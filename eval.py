@@ -388,7 +388,7 @@ def test_net(save_folder, net, cuda, dataset, transform, top_k,
         # print("detections",detections[0, 2])
 
         # skip j = 0, because it's the background class
-        for j in range(1, detections.size(1)):
+        for j in range(0, detections.size(1)):
             dets = detections[0, j, :]
             mask = dets[:, 0].gt(0.).expand(5, dets.size(0)).t()
             dets = torch.masked_select(dets, mask).view(-1, 5)

@@ -93,7 +93,7 @@ class SSD(nn.Module):
         # apply multibox head to source layers
         for (x, l, c) in zip(sources, self.loc, self.conf):
             loc.append(l(x).permute(0, 2, 3, 1).contiguous())
-            conf.append(c(F.relu(x, inplace=True)).permute(0, 2, 3, 1).contiguous())
+            conf.append(c(F.relu(x)).permute(0, 2, 3, 1).contiguous())
 
         loc = torch.cat([o.view(o.size(0), -1) for o in loc], 1)
         conf = torch.cat([o.view(o.size(0), -1) for o in conf], 1)

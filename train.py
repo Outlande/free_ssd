@@ -155,7 +155,7 @@ def train():
 
     data_loader = data.DataLoader(dataset, args.batch_size,
                                   num_workers=args.num_workers,
-                                  shuffle=True, collate_fn=detection_collate,
+                                  shuffle=False, collate_fn=detection_collate,
                                   pin_memory=True)
     # create batch iterator
     batch_iterator = iter(cycle(data_loader))
