@@ -53,7 +53,6 @@ class MultiBoxLoss(nn.Module):
                 conf shape: torch.size(batch_size,num_priors,num_classes)
                 loc shape: torch.size(batch_size,num_priors,4)
                 priors shape: torch.size(num_priors,4)
-
             targets (tensor): Ground truth boxes and labels for a batch,
                 shape: [batch_size,num_objs,5] (last idx is the label).
         """
@@ -81,6 +80,7 @@ class MultiBoxLoss(nn.Module):
 
         pos = conf_t > 0
         num_pos = pos.sum(dim=1, keepdim=True)
+
         # Localization Loss (Smooth L1)
         # Shape: [batch,num_priors,4]
         pos_idx = pos.unsqueeze(pos.dim()).expand_as(loc_data)
@@ -95,6 +95,7 @@ class MultiBoxLoss(nn.Module):
         # Hard Negative Mining
         loss_c = loss_c.view(num, -1)
         loss_c[pos] = 0  # filter out pos boxes for now
+        
         _, loss_idx = loss_c.sort(1, descending=True)
         _, idx_rank = loss_idx.sort(1)
         num_pos = pos.long().sum(1, keepdim=True)
@@ -110,7 +111,7 @@ class MultiBoxLoss(nn.Module):
 
         # Sum of losses: L(x,c,l,g) = (Lconf(x, c) + αLloc(x,l,g)) / N
 
-        N = num_pos.data.sum()
+        N = num_pos.data.sum().float()
         loss_l /= N
         loss_c /= N
         return loss_l, loss_c
