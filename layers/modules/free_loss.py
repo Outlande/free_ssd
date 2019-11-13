@@ -33,9 +33,9 @@ def smooth_l1_loss(pred, target, weight, beta):
 
 
 def focal_loss(logits, gamma):
-    # print("logits",logits.min(),logits.max()
+    # print("logits",logits.min(),logits.max())
     return torch.sum(
-        logits ** gamma * (-torch.log(1-logits))
+        logits ** gamma * F.binary_cross_entropy(logits, torch.zeros_like(logits), reduction='none')
     )
 
 
@@ -45,7 +45,7 @@ def positive_bag_loss(logits, *args, **kwargs):
     weight /= weight.sum(*args, **kwargs).unsqueeze(dim=-1)
     bag_prob = (weight * logits).sum(*args, **kwargs)
     # positive_bag_loss = -log(bag_prob)
-    return -torch.log(bag_prob)
+    return F.binary_cross_entropy(bag_prob, torch.ones_like(bag_prob), reduction='none')
 
 
 class FreeLoss(nn.Module):
@@ -54,7 +54,7 @@ class FreeLoss(nn.Module):
         super(FreeLoss, self).__init__()
         self.use_gpu = use_gpu
         self.num_classes = num_classes # 20
-        self.bbox_threshold = 0.5
+        self.bbox_threshold = 0.6
         self.variance = cfg['variance'] # [0.1, 0.2]
         # 每个obj的正样本的数量
         self.pre_anchor_topk = 50 
@@ -72,6 +72,7 @@ class FreeLoss(nn.Module):
         # batch * anchor size * numclass
         # anchor size * 4
         box_regression, cls_prob, anchors_ = predictions
+        # print(anchors_.size())
         cls_prob = torch.sigmoid(cls_prob)
 
         box_prob = []
@@ -93,34 +94,27 @@ class FreeLoss(nn.Module):
                 box_localization = decode(loc=box_regression_, priors=anchors_, variances=self.variance)
                 object_box_iou = jaccard(targets_, point_form(box_localization))
                 t1 = self.bbox_threshold
-                t2 = object_box_iou.max(dim=1, keepdim=True)[0].clamp(min=t1 + 1e-12)
+                t2 = object_box_iou.max(dim=1, keepdim=True).values.clamp(min=t1 + 1e-12)
                 # object_box_prob: P{a_{j} -> b_{i}}, shape: [i, j]
                 object_box_prob = (
                     (object_box_iou - t1) / (t2 - t1)
                 ).clamp(min=0, max=1)
+                indices = torch.stack([torch.arange(len(labels_)).type_as(labels_), labels_], dim=0)
+
+                # object_cls_box_prob: P{a_{j} -> b_{i}}, shape: [i, c, j]
+                object_cls_box_prob = torch.sparse_coo_tensor(indices, object_box_prob)
+
+                # image_box_iou: P{a_{j} \in A_{+}}, shape: [j, c]
+                """
+                from "start" to "end" implement:
                 
-
-                indices = [labels_[0]]
-                object_cls_box_prob = torch.zeros(self.num_classes, anchors_.size(0))
-                object_cls_box_prob[indices[0], :] = object_box_prob[0]
-                # print("object_cls_box_prob", object_cls_box_prob.max())
-                judge = False
-                for i in range(0, labels_.size(0)):
-                    for j in range(0, len(indices)):
-                        if labels_[i] == indices[j]:
-                            judge = True
-                            break
-                    if judge:
-                        object_cls_box_prob[labels_[i], :] += object_box_prob[i]
-                        judge = False
-                    else:
-                        indices.append(labels_[i])
-                        object_cls_box_prob[labels_[i]] = object_box_prob[i]
-
-                indices = torch.nonzero(object_cls_box_prob)
-                if indices.size() != torch.Size([0]):
-                    indices = indices.t_()
-
+                image_box_iou = torch.sparse.max(object_cls_box_prob, dim=0).t()
+                
+                """
+                # start 
+                indices = torch.nonzero(torch.sparse.sum(
+                    object_cls_box_prob, dim=0
+                ).to_dense()).t_()
 
                 if indices.numel() == 0:
                     image_box_prob = torch.zeros(anchors_.size(0), self.num_classes).type_as(object_box_prob)
@@ -129,16 +123,12 @@ class FreeLoss(nn.Module):
                         (labels_.unsqueeze(dim=-1) == indices[0]),
                         object_box_prob[:, indices[1]],
                         torch.tensor([0]).type_as(object_box_prob)
-                    ).max(dim=0)[0]
+                    ).max(dim=0).values
 
-                    indices_t = indices.clone()
-                    indices_t[0] = indices[1]
-                    indices_t[1] = indices[0]
                     image_box_prob = torch.sparse_coo_tensor(
-                        indices_t, nonzero_box_prob,
+                        indices.flip([0]), nonzero_box_prob,
                         size=(anchors_.size(0), self.num_classes)
                     ).to_dense()
-                    del indices_t   
                 # end
 
                 box_prob.append(image_box_prob)
@@ -179,6 +169,8 @@ class FreeLoss(nn.Module):
         # loss_n is loss_retina_negativeloss_retina_negative
         loss_p = positive_loss * self.focal_loss_alpha
         loss_n = negative_loss * (1 - self.focal_loss_alpha)
+        # print("loss_p",loss_p)
+        # print("loss_n",loss_n)
 
         return loss_p, loss_n
         
